@@ -1,0 +1,93 @@
+import pygame
+import random
+import math
+import time
+
+# Inicialización de Pygame
+pygame.init()
+
+# Configuración de la pantalla
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Juego de Trigonometría")
+
+# Colores
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Fuentes de texto
+font = pygame.font.Font(None, 36)
+
+# Tiempo de juego en segundos
+tiempo_de_juego = 30
+
+# Función para generar una pregunta trigonométrica aleatoria
+def generar_pregunta():
+    angulo = random.randint(0, 360)
+    pregunta = f"¿Cuál es el seno de {angulo} grados?"
+    respuesta = round(math.sin(math.radians(angulo)), 2)
+    opciones = [respuesta, round(random.uniform(-1, 1), 2), round(random.uniform(-1, 1), 2)]
+    random.shuffle(opciones)
+    return pregunta, respuesta, opciones
+
+# Inicialización de variables
+jugador1_puntos = 0
+jugador2_puntos = 0
+tiempo_inicio = None
+pregunta_actual = None
+
+# Bucle principal del juego
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if tiempo_inicio is None:
+                tiempo_inicio = time.time()
+            if event.key == pygame.K_1:
+                if pregunta_actual[2][0] == pregunta_actual[1]:
+                    jugador1_puntos += 1
+            elif event.key == pygame.K_2:
+                if pregunta_actual[2][1] == pregunta_actual[1]:
+                    jugador1_puntos += 1
+            elif event.key == pygame.K_3:
+                if pregunta_actual[2][2] == pregunta_actual[1]:
+                    jugador1_puntos += 1
+            elif event.key == pygame.K_KP1:
+                if pregunta_actual[2][0] == pregunta_actual[1]:
+                    jugador2_puntos += 1
+            elif event.key == pygame.K_KP2:
+                if pregunta_actual[2][1] == pregunta_actual[1]:
+                    jugador2_puntos += 1
+            elif event.key == pygame.K_KP3:
+                if pregunta_actual[2][2] == pregunta_actual[1]:
+                    jugador2_puntos += 1
+
+    # Generar una nueva pregunta si aún hay tiempo en el juego
+    if tiempo_inicio is not None and time.time() - tiempo_inicio < tiempo_de_juego:
+        if pregunta_actual is None:
+            pregunta_actual = generar_pregunta()
+    else:
+        tiempo_inicio = None
+        pregunta_actual = None
+
+    # Limpiar la pantalla
+    screen.fill(BLACK)
+
+    # Dibujar la pregunta actual
+    if pregunta_actual is not None:
+        pregunta_texto = font.render(pregunta_actual[0], True, WHITE)
+        screen.blit(pregunta_texto, (50, 50))
+
+    # Dibujar los puntos de los jugadores
+    jugador1_texto = font.render(f"Jugador 1: {jugador1_puntos}", True, WHITE)
+    jugador2_texto = font.render(f"Jugador 2: {jugador2_puntos}", True, WHITE)
+    screen.blit(jugador1_texto, (50, HEIGHT - 100))
+    screen.blit(jugador2_texto, (WIDTH - 250, HEIGHT - 100))
+
+    # Actualizar la pantalla
+    pygame.display.flip()
+
+# Finalizar Pygame
+pygame.quit()
